@@ -44,7 +44,6 @@ class PositionCrop(BaseInstanceProcessor):
 
     def process_instance(self, image, instance):
 
-
         # Step 1, crop based on crop position
         crop_value = self.get_crop_value(instance)
 
@@ -61,7 +60,6 @@ class PositionCrop(BaseInstanceProcessor):
         # print 'process %s :: original width %s original height %s || SETTINGS %s - %s - %s upscale? %s crop? %s, %s, %s, %s'%(instance, original_width, original_height, self.width, self.height, self.resize_method, self.upscale, crop_value.x, crop_value.y, crop_value.width, crop_value.height)
         is_empty_cropper = crop_value == None or crop_value == ''
         if is_empty_cropper:
-
             # Set crop with inital crop.
 
             # print 'crop: %s, %s original: %s, %s'%(self.width, self.height, original_width, original_height)
@@ -101,6 +99,7 @@ class PositionCrop(BaseInstanceProcessor):
         if self.resize_method == 'fit':
             width = None if not self.width else self.width
             height = None if not self.height else self.height
+
             if height == None:
                 # print 'height = (%s/%s) * %s'%(width, original_width, original_height)
                 height = int(float(float(width) / float(original_width)) * float(original_height))
@@ -111,10 +110,20 @@ class PositionCrop(BaseInstanceProcessor):
             # print "Resize to fit: %s, %s"%(width, height)
             resizer = ResizeToFit(width, height, None, self.upscale)
         else:
-            width = cropped.size[0] if not self.width else self.width
-            height = cropped.size[1] if not self.height else self.height
+            height_percent = self.height / original_height
+            width_percent = self.width / original_width
+
+            width = cropped.size[0] * width_percent
+            height = cropped.size[1] * width_percent
+
+            sum_value = 1
+            percent_sum_value = width / height
+
+            while width < self.height and height < self.width:
+                width += percent_sum_value
+                height += sum_value
             # print "Resize to fill: %s, %s"%(crop_w, crop_h)
-            resizer = ResizeToFill(width, height, None, self.upscale)
+            resizer = ResizeToFill(int(width), int(height), None, self.upscale)
 
         # print 'Resize to %s - %s (%s - %s)'%(width, height, resizer.width, resizer.height)
         resized = resizer.process(cropped)

@@ -30,7 +30,7 @@ class InstanceSpecField(ImageSpecField):
         self.format = format
         self.processors = processors
 
-        
+
         #==== FROM ImageSpecField
         SpecHost.__init__(self, processors=processors, format=format,
                 options=options, cachefile_storage=cachefile_storage,
@@ -43,7 +43,7 @@ class InstanceSpecField(ImageSpecField):
         self.source = source
         #==== END FROM ImageSpecField
 
-        self.spec = spec = self.get_spec_class() 
+        self.spec = spec = self.get_spec_class()
 
 
         data = self.get_spec_instance_attrs()
@@ -57,23 +57,23 @@ class InstanceSpecField(ImageSpecField):
         #==== END FROM SpecHost
 
     def contribute_to_class(self, cls, name):
-        
+
         descriptor = ImageSpecFileDescriptor(self, name, self.source)
         setattr(cls, name, descriptor)
 
         #Store spec instance info based on spec ID
         spec_id = ('%s:%s:%s' % (cls._meta.app_label,
                             cls._meta.object_name, name)).lower()
-        
+
         #Un-register with default source group; use custom
         unregister.source_group(spec_id, ImageFieldSourceGroup(cls, self.source))
-        instance_source_group_registry.register(spec_id, ImageFieldSourceGroup(cls, self.source), self.get_spec_instance_attrs())  
+        instance_source_group_registry.register(spec_id, ImageFieldSourceGroup(cls, self.source), self.get_spec_instance_attrs())
 
         # setattr(cls, name, InstanceSpecFileDescriptor(self, name, source))
         self._set_spec_id(cls, name)
-        
+
     def get_spec(self, source):
-        
+
         item = generator_registry.get(self.spec_id, source=source, specs=self.get_spec_instance_attrs())
 
         return item
@@ -92,11 +92,11 @@ class InstanceFormatSpecField(InstanceSpecField):
             source=None, cachefile_storage=None, autoconvert=None,
             cachefile_backend=None, cachefile_strategy=None, spec=None,
             id=None):
-        
+
         self.format_field = format_field
 
-        super(InstanceFormatSpecField, self).__init__(processors, format, 
-            options, source, cachefile_storage, autoconvert, cachefile_backend, 
+        super().__init__(processors, format,
+            options, source, cachefile_storage, autoconvert, cachefile_backend,
             cachefile_strategy, spec, id)
 
     def get_spec_instance_attrs(self):
@@ -125,7 +125,7 @@ class ImageCropField(models.Field):
 
     description = "Image crop coordinates"
     __metaclass__ = models.SubfieldBase
-    
+
     def __init__(self,properties, help_text=("A comma-separated list of crop coordinates"),verbose_name='imagecropfield', *args,**kwargs):
         self.name="ImageCropField",
         self.through = None
@@ -136,27 +136,27 @@ class ImageCropField(models.Field):
         self.db_column = None
         self.serialize = False
         self.null = True
-        self.creation_counter = models.Field.creation_counter        
+        self.creation_counter = models.Field.creation_counter
         self.properties = properties
         # self.default_width = self.properties['width'] if self.properties['width'] else 1000
         # self.default_height = self.properties['height'] if self.properties['height'] else 1000
         models.Field.creation_counter += 1
-        super(ImageCropField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
     def deconstruct(self):
         name, path, args, kwargs = super(ImageCropField, self).deconstruct()
         kwargs['properties'] = self.properties
         return name, path, args, kwargs
-        
-        
+
+
     def db_type(self, connection):
         return 'varchar(100)'
-    
-    def to_python(self,value):
-        
+
+    def to_python(self, value):
+
         if value in ( None,''):
-            
+
             return CropCoordinates()
         else:
             if isinstance(value, CropCoordinates):
@@ -168,7 +168,7 @@ class ImageCropField(models.Field):
 
                 split_items = value.split(',')
 
-                
+
 
                 x = float(split_items[0])
                 y = float(split_items[1])
@@ -179,17 +179,17 @@ class ImageCropField(models.Field):
                 if len(args) != 4 and value is not None:
                     raise ValidationError("Invalid input for a CropCoordinates instance")
                 return CropCoordinates(*args)
-         
+
 
     def get_prep_value(self, value):
         if value:
             store_value = ','.join([str(value.x),str(value.y),str(value.width),str(value.height)])
             return store_value
         return None
-    
+
     def get_internal_type(self):
         return 'CharField'
-    
+
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)
-        return self.get_prep_value(value)    
+        return self.get_prep_value(value)
