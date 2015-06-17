@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 #this is a test
-setup(name = 'django-imagekit-cropper',
+setup(name = 'django-imagekit-cropper-py3.4.3',
       description = 'Allow users to manually specify image variant crops',
-      version = '1.3',
-      url = 'https://github.com/ninapavlich/django-imagekit-cropper',
-      author = 'Nina Pavlich',
-      author_email='nina@ninalp.com',
+      version = '1.3.1',
+      url = 'https://github.com/DobromirZlatkov/django-imagekit-cropper-py3.4.3',
+      author = 'Dobromir Zlatkov',
+      author_email='dobromir.v.zlatkov@gmai.com',
       license = 'BSD',
       packages=find_packages(),
       package_data={'': ['*.py','*.css','*.js']},
