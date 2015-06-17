@@ -95,7 +95,7 @@ class InstanceFormatSpecField(InstanceSpecField):
 
         self.format_field = format_field
 
-        super().__init__(processors, format,
+        super(InstanceFormatSpecField, self).__init__(processors, format,
             options, source, cachefile_storage, autoconvert, cachefile_backend,
             cachefile_strategy, spec, id)
 
@@ -117,14 +117,14 @@ class CropCoordinates(object):
             return "%s,%s,%s,%s"%(self.x, self.y, self.width, self.height)
         return ''
 
-class ImageCropField(models.Field):
+class ImageCropField(models.Field, metaclass=models.SubfieldBase):
     """
     Model field for containing image crop dimensions
 
     """
 
     description = "Image crop coordinates"
-    __metaclass__ = models.SubfieldBase
+    #__metaclass__ = models.SubfieldBase
 
     def __init__(self,properties, help_text=("A comma-separated list of crop coordinates"),verbose_name='imagecropfield', *args,**kwargs):
         self.name="ImageCropField",
@@ -141,7 +141,7 @@ class ImageCropField(models.Field):
         # self.default_width = self.properties['width'] if self.properties['width'] else 1000
         # self.default_height = self.properties['height'] if self.properties['height'] else 1000
         models.Field.creation_counter += 1
-        super().__init__(*args, **kwargs)
+        super(ImageCropField, self).__init__(*args, **kwargs)
 
 
     def deconstruct(self):
@@ -175,7 +175,7 @@ class ImageCropField(models.Field):
                 w = float(split_items[2])
                 h = float(split_items[3])
 
-                args = [x,y,w,h]
+                args = [x, y, w, h]
                 if len(args) != 4 and value is not None:
                     raise ValidationError("Invalid input for a CropCoordinates instance")
                 return CropCoordinates(*args)
